@@ -265,3 +265,40 @@ class Grade(models.Model):
 
     def __str__(self):
         return f'Grade for {self.student} on {self.assessment}: {self.score}'
+
+
+class FeeType(models.Model):
+    """
+    Model representing a type of fee.
+    """
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class FeeStructure(models.Model):
+    """
+    Model representing the fee structure for a class grade.
+    """
+    class_grade = models.CharField(max_length=3, choices=Student.CLASS_CHOICES, unique=True)
+    fees = models.ManyToManyField(FeeType, through='FeeStructureItem')
+
+    def __str__(self):
+        return f'Fee Structure for {self.class_grade}'
+
+
+class FeeStructureItem(models.Model):
+    """
+    Intermediate model for FeeStructure and FeeType.
+    """
+    fee_structure = models.ForeignKey(FeeStructure, on_delete=models.CASCADE)
+    fee_type = models.ForeignKey(FeeType, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        unique_together = ('fee_structure', 'fee_type')
+
+    def __str__(self):
+        return f'{self.fee_type} for {self.fee_structure}: {self.amount}'
