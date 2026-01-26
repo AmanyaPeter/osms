@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ student.full_name }}'s Profile - {{ block.super }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-4">
+            {% if student.student_photo %}
+                <img src="{{ student.student_photo.url }}" alt="{{ student.full_name }}" class="img-fluid rounded">
+            {% else %}
+                <div class="border rounded bg-light d-flex justify-content-center align-items-center" style="height: 300px;">
+                    <span>No photo available</span>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <h2>{{ student.full_name }}</h2>
+            <p class="text-muted">{{ student.student_id }}</p>
+            <a href="{% url 'student_update' student.id %}" class="btn btn-primary mb-3">Edit Student</a>
+            <a href="{% url 'student_delete' student.id %}" class="btn btn-danger mb-3">Delete Student</a>
+            <hr>
+            <h4>Personal Information</h4>
+            <ul>
+                <li><strong>Date of Birth:</strong> {{ student.date_of_birth }}</li>
+                <li><strong>Gender:</strong> {{ student.gender }}</li>
+            </ul>
+            <h4>Academic Information</h4>
+            <ul>
+                <li><strong>Class:</strong> {{ student.class_grade }}</li>
+                <li><strong>Admission Date:</strong> {{ student.admission_date }}</li>
+                <li><strong>Status:</strong> {{ student.status }}</li>
+            </ul>
+            <h4>Guardian Information</h4>
+            <ul>
+                <li><strong>Name:</strong> {{ student.guardian_name }}</li>
+                <li><strong>Contact:</strong> {{ student.guardian_contact }}</li>
+                <li><strong>Email:</strong> {{ student.guardian_email|default:'N/A' }}</li>
+                <li><strong>Address:</strong> {{ student.home_address }}</li>
+            </ul>
+            <h4>Other Information</h4>
+            <ul>
+                <li><strong>Medical Conditions:</strong> {{ student.medical_conditions|default:'None' }}</li>
+                <li><strong>Previous School:</strong> {{ student.previous_school|default:'N/A' }}</li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
