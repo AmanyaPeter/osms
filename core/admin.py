@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Student, Teacher
+from .models import Student, Teacher, Subject, Course
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
@@ -40,3 +40,14 @@ class TeacherAdmin(admin.ModelAdmin):
             'fields': ('teacher_id', 'national_id', 'qualification', 'employment_date', 'employment_type', 'salary', 'status')
         }),
     )
+
+@admin.register(Subject)
+class SubjectAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+
+@admin.register(Course)
+class CourseAdmin(admin.ModelAdmin):
+    list_display = ('course_code', 'course_name', 'grade_level', 'course_type', 'status')
+    search_fields = ('course_code', 'course_name')
+    list_filter = ('grade_level', 'course_type', 'status')
