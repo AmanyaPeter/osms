@@ -226,3 +226,42 @@ class Attendance(models.Model):
 
     def __str__(self):
         return f'{self.student} - {self.course} on {self.date}: {self.status}'
+
+
+class Assessment(models.Model):
+    """
+    Model representing an assessment for a course.
+    """
+    ASSESSMENT_TYPE_CHOICES = [
+        ('Quiz', 'Quiz'),
+        ('Test', 'Test'),
+        ('Exam', 'Exam'),
+        ('Assignment', 'Assignment'),
+        ('Project', 'Project'),
+    ]
+
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    assessment_name = models.CharField(max_length=255)
+    assessment_type = models.CharField(max_length=20, choices=ASSESSMENT_TYPE_CHOICES)
+    date = models.DateField()
+    max_score = models.PositiveIntegerField(default=100)
+
+    def __str__(self):
+        return f'{self.assessment_name} for {self.course}'
+
+
+class Grade(models.Model):
+    """
+    Model representing a student's grade on an assessment.
+    """
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    assessment = models.ForeignKey(Assessment, on_delete=models.CASCADE)
+    score = models.DecimalField(max_digits=5, decimal_places=2)
+    recorded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    recorded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('student', 'assessment')
+
+    def __str__(self):
+        return f'Grade for {self.student} on {self.assessment}: {self.score}'
