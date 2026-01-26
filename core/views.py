@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from .models import Student
 from django.db import models
-from .forms import StudentForm, TeacherForm, CourseForm
+from .forms import StudentForm, TeacherForm, CourseForm, TeacherAssignmentForm, EnrollmentForm
 
 def home(request):
     return render(request, 'home.html')
@@ -103,3 +103,23 @@ def course_creation(request):
     else:
         form = CourseForm()
     return render(request, 'course_creation.html', {'form': form})
+
+def teacher_assignment(request):
+    if request.method == 'POST':
+        form = TeacherAssignmentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home') # Redirect to assignment list page later
+    else:
+        form = TeacherAssignmentForm()
+    return render(request, 'teacher_assignment.html', {'form': form})
+
+def enrollment(request):
+    if request.method == 'POST':
+        form = EnrollmentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home') # Redirect to enrollment list page later
+    else:
+        form = EnrollmentForm()
+    return render(request, 'enrollment.html', {'form': form})

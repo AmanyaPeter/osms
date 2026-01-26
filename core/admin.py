@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Student, Teacher, Subject, Course
+from .models import Student, Teacher, Subject, Course, TeacherAssignment, Enrollment, Attendance
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
@@ -51,3 +51,18 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = ('course_code', 'course_name', 'grade_level', 'course_type', 'status')
     search_fields = ('course_code', 'course_name')
     list_filter = ('grade_level', 'course_type', 'status')
+
+@admin.register(TeacherAssignment)
+class TeacherAssignmentAdmin(admin.ModelAdmin):
+    list_display = ('teacher', 'course', 'class_grade', 'term', 'academic_year')
+    list_filter = ('teacher', 'course', 'class_grade', 'term', 'academic_year')
+
+@admin.register(Enrollment)
+class EnrollmentAdmin(admin.ModelAdmin):
+    list_display = ('student', 'course', 'term', 'academic_year', 'enrollment_date')
+    list_filter = ('student', 'course', 'term', 'academic_year')
+
+@admin.register(Attendance)
+class AttendanceAdmin(admin.ModelAdmin):
+    list_display = ('student', 'course', 'date', 'status')
+    list_filter = ('student', 'course', 'date', 'status')

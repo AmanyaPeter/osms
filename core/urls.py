@@ -9,4 +9,7 @@ urlpatterns = [
     path('students/<int:student_id>/update/', views.student_update, name='student_update'),
     path('students/<int:student_id>/delete/', views.student_delete, name='student_delete'),
     path('teachers/register/', views.teacher_registration, name='teacher_registration'),
+    path('courses/create/', views.course_creation, name='course_creation'),
+    path('teachers/assign/', views.teacher_assignment, name='teacher_assignment'),
+    path('students/enroll/', views.enrollment, name='enrollment'),
 ]

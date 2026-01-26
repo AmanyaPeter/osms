@@ -141,7 +141,7 @@ class Course(models.Model):
     STATUS_CHOICES = [('Active', 'Active'), ('Inactive', 'Inactive')]
 
     # Fields
-    course_code = models.CharField(max_length=20, unique=True)
+    course_code = models.CharField(max_length=20, unique=True, editable=False, blank=True)
     course_name = models.CharField(max_length=255)
     grade_level = models.CharField(max_length=3, choices=GRADE_LEVEL_CHOICES)
     course_type = models.CharField(max_length=20, choices=COURSE_TYPE_CHOICES)
@@ -154,3 +154,75 @@ class Course(models.Model):
 
     def __str__(self):
         return f'{self.course_name} ({self.course_code})'
+
+    def save(self, *args, **kwargs):
+        if not self.course_code:
+            name_parts = self.course_name.upper().split()
+            if len(name_parts) > 1:
+                initials = "".join(part[0] for part in name_parts)
+            else:
+                initials = name_parts[0][:4]
+            self.course_code = f'{initials}-{self.grade_level}'
+        super(Course, self).save(*args, **kwargs)
+
+class TeacherAssignment(models.Model):
+    """
+    Model representing the assignment of a teacher to a course for a specific class, term, and year.
+    """
+    # Choices
+    TERM_CHOICES = [('Term 1', 'Term 1'), ('Term 2', 'Term 2'), ('Term 3', 'Term 3')]
+
+    # Fields
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    class_grade = models.CharField(max_length=3, choices=Student.CLASS_CHOICES)
+    term = models.CharField(max_length=10, choices=TERM_CHOICES)
+    academic_year = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ('course', 'class_grade', 'term', 'academic_year')
+
+    def __str__(self):
+        return f'{self.teacher} - {self.course} ({self.class_grade}) - {self.term} {self.academic_year}'
+
+class Enrollment(models.Model):
+    """
+    Model representing a student's enrollment in a course for a specific term and year.
+    """
+    # Fields
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    term = models.CharField(max_length=10, choices=TeacherAssignment.TERM_CHOICES)
+    academic_year = models.PositiveIntegerField()
+    enrollment_date = models.DateField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('student', 'course', 'term', 'academic_year')
+
+    def __str__(self):
+        return f'{self.student} enrolled in {self.course} for {self.term} {self.academic_year}'
+
+class Attendance(models.Model):
+    """
+    Model representing a student's attendance for a specific course on a given date.
+    """
+    # Choices
+    STATUS_CHOICES = [
+        ('Present', 'Present'),
+        ('Absent', 'Absent'),
+        ('Late', 'Late'),
+        ('Excused', 'Excused'),
+    ]
+
+    # Fields
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    date = models.DateField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+    remarks = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ('student', 'course', 'date')
+
+    def __str__(self):
+        return f'{self.student} - {self.course} on {self.date}: {self.status}'

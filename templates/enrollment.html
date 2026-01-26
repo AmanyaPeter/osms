@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Enroll Student in Course - {{ block.super }}{% endblock %}
+
+{% block content %}
+    <h2>Enroll a Student in a Course</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Enroll Student</button>
+    </form>
+{% endblock %}
