@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from .models import Student
 from django.db import models
-from .forms import StudentForm, TeacherForm, CourseForm, TeacherAssignmentForm, EnrollmentForm, AttendanceForm
+from .forms import StudentForm, TeacherForm, CourseForm, TeacherAssignmentForm, EnrollmentForm, AttendanceForm, GradeForm
 
 def home(request):
     return render(request, 'home.html')
@@ -133,3 +133,15 @@ def attendance(request):
     else:
         form = AttendanceForm()
     return render(request, 'attendance.html', {'form': form})
+
+def record_grade(request):
+    if request.method == 'POST':
+        form = GradeForm(request.POST)
+        if form.is_valid():
+            grade = form.save(commit=False)
+            grade.recorded_by = request.user
+            grade.save()
+            return redirect('home') # Redirect to grade list page later
+    else:
+        form = GradeForm()
+    return render(request, 'record_grade.html', {'form': form})

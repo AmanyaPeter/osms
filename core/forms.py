@@ -1,5 +1,5 @@
 from django import forms
-from .models import Student, Teacher, Course, TeacherAssignment, Enrollment, Attendance
+from .models import Student, Teacher, Course, TeacherAssignment, Enrollment, Attendance, Grade
 
 class StudentForm(forms.ModelForm):
     class Meta:
@@ -88,6 +88,17 @@ class AttendanceForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'type': 'date'}),
             'remarks': forms.Textarea(attrs={'rows': 3}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+
+
+class GradeForm(forms.ModelForm):
+    class Meta:
+        model = Grade
+        fields = ['student', 'assessment', 'score']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

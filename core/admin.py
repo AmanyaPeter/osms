@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Student, Teacher, Subject, Course, TeacherAssignment, Enrollment, Attendance
+from .models import Student, Teacher, Subject, Course, TeacherAssignment, Enrollment, Attendance, Assessment, Grade
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
@@ -66,3 +66,13 @@ class EnrollmentAdmin(admin.ModelAdmin):
 class AttendanceAdmin(admin.ModelAdmin):
     list_display = ('student', 'course', 'date', 'status')
     list_filter = ('student', 'course', 'date', 'status')
+
+@admin.register(Assessment)
+class AssessmentAdmin(admin.ModelAdmin):
+    list_display = ('assessment_name', 'course', 'assessment_type', 'date', 'max_score')
+    list_filter = ('course', 'assessment_type', 'date')
+
+@admin.register(Grade)
+class GradeAdmin(admin.ModelAdmin):
+    list_display = ('student', 'assessment', 'score')
+    list_filter = ('student', 'assessment')
