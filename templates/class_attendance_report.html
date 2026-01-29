@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Class Attendance Report - {{ block.super }}{% endblock %}
+
+{% block content %}
+    <h2>Class Attendance Report</h2>
+    <hr>
+
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-6">
+            <label for="class_grade" class="form-label">Select Class</label>
+            <select name="class_grade" id="class_grade" class="form-select" onchange="this.form.submit()">
+                <option value="">Choose...</option>
+                {% for val, disp in class_choices %}
+                    <option value="{{ val }}" {% if selected_class == val %}selected{% endif %}>{{ disp }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    {% if summary %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Total Days</th>
+                    <th>Present</th>
+                    <th>Attendance %</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in summary %}
+                    <tr>
+                        <td>{{ item.student.full_name }}</td>
+                        <td>{{ item.total }}</td>
+                        <td>{{ item.present }}</td>
+                        <td class="{% if item.percentage < 75 %}text-danger{% endif %}">
+                            {{ item.percentage|floatformat:1 }}%
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button onclick="window.print()" class="btn btn-secondary">Print Report</button>
+    {% endif %}
+{% endblock %}

@@ -1,15 +1,36 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 import datetime
+from PIL import Image
+import os
+from .utils import encrypt_value, decrypt_value
+from decimal import Decimal
 
 def validate_age(birth_date):
     today = datetime.date.today()
     age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
     if not 3 <= age <= 25:
         raise ValidationError('Student age must be between 3 and 25 years.')
+
+class User(AbstractUser):
+    """
+    Custom User model with roles as defined in PRD 4.1.
+    """
+    ROLE_CHOICES = [
+        ('Admin', 'Admin'),
+        ('Principal', 'Principal'),
+        ('Teacher', 'Teacher'),
+        ('Accountant', 'Accountant'),
+        ('Clerk', 'Data Clerk'),
+    ]
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Clerk')
+
+    def __str__(self):
+        return f"{self.username} ({self.role})"
 
 class Student(models.Model):
     """
@@ -56,6 +77,13 @@ class Student(models.Model):
             self.student_id = f'STU-{year}-{last_id + 1:04d}'
         super(Student, self).save(*args, **kwargs)
 
+        if self.student_photo:
+            img = Image.open(self.student_photo.path)
+            if img.height > 300 or img.width > 300:
+                output_size = (300, 300)
+                img.thumbnail(output_size)
+                img.save(self.student_photo.path)
+
 class Teacher(models.Model):
     """
     Model representing a teacher, based on FR-TEA-001.
@@ -95,7 +123,7 @@ class Teacher(models.Model):
     subject_specialization = models.ManyToManyField('Subject', blank=True)
     employment_date = models.DateField()
     employment_type = models.CharField(max_length=20, choices=EMPLOYMENT_CHOICES)
-    salary = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True) # Should be encrypted
+    salary_encrypted = models.TextField(null=True, blank=True)
     teacher_photo = models.ImageField(upload_to='teachers/photos/', blank=True, null=True)
     address = models.TextField()
     emergency_contact = models.CharField(validators=[uganda_phone_validator], max_length=10)
@@ -110,6 +138,15 @@ class Teacher(models.Model):
     def __str__(self):
         return self.full_name
 
+    @property
+    def salary(self):
+        val = decrypt_value(self.salary_encrypted)
+        return Decimal(val) if val else None
+
+    @salary.setter
+    def salary(self, value):
+        self.salary_encrypted = encrypt_value(value)
+
     def save(self, *args, **kwargs):
         if not self.teacher_id:
             last_teacher = Teacher.objects.all().order_by('id').last()
@@ -117,6 +154,13 @@ class Teacher(models.Model):
             year = datetime.date.today().year
             self.teacher_id = f'TEA-{year}-{last_id + 1:04d}'
         super(Teacher, self).save(*args, **kwargs)
+
+        if self.teacher_photo:
+            img = Image.open(self.teacher_photo.path)
+            if img.height > 300 or img.width > 300:
+                output_size = (300, 300)
+                img.thumbnail(output_size)
+                img.save(self.teacher_photo.path)
 
 class Subject(models.Model):
     """
@@ -178,9 +222,26 @@ class TeacherAssignment(models.Model):
     class_grade = models.CharField(max_length=3, choices=Student.CLASS_CHOICES)
     term = models.CharField(max_length=10, choices=TERM_CHOICES)
     academic_year = models.PositiveIntegerField()
+    day_of_week = models.CharField(max_length=10, choices=[
+        ('Monday', 'Monday'),
+        ('Tuesday', 'Tuesday'),
+        ('Wednesday', 'Wednesday'),
+        ('Thursday', 'Thursday'),
+        ('Friday', 'Friday'),
+    ], null=True, blank=True)
+    time_slot = models.CharField(max_length=20, choices=[
+        ('08:00 - 09:00', '08:00 - 09:00'),
+        ('09:00 - 10:00', '09:00 - 10:00'),
+        ('10:00 - 11:00', '10:00 - 11:00'),
+        ('11:00 - 12:00', '11:00 - 12:00'),
+        ('12:00 - 13:00', '12:00 - 13:00'),
+        ('14:00 - 15:00', '14:00 - 15:00'),
+        ('15:00 - 16:00', '15:00 - 16:00'),
+        ('16:00 - 17:00', '16:00 - 17:00'),
+    ], null=True, blank=True)
 
     class Meta:
-        unique_together = ('course', 'class_grade', 'term', 'academic_year')
+        unique_together = ('course', 'class_grade', 'term', 'academic_year', 'day_of_week', 'time_slot')
 
     def __str__(self):
         return f'{self.teacher} - {self.course} ({self.class_grade}) - {self.term} {self.academic_year}'
@@ -302,3 +363,31 @@ class FeeStructureItem(models.Model):
 
     def __str__(self):
         return f'{self.fee_type} for {self.fee_structure}: {self.amount}'
+
+
+class Payment(models.Model):
+    """
+    Model representing a fee payment by a student.
+    """
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    date = models.DateField(default=timezone.now)
+    receipt_number = models.CharField(max_length=50, unique=True)
+    recorded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f'Payment of {self.amount} by {self.student} on {self.date}'
+
+
+class AuditLog(models.Model):
+    """
+    Model for recording system activities for auditing.
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    action = models.CharField(max_length=255)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    details = models.TextField(blank=True, null=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.action} - {self.timestamp}"

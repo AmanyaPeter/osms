@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ teacher.full_name }}'s Profile - {{ block.super }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-4">
+            {% if teacher.teacher_photo %}
+                <img src="{{ teacher.teacher_photo.url }}" alt="{{ teacher.full_name }}" class="img-fluid rounded">
+            {% else %}
+                <div class="border rounded bg-light d-flex justify-content-center align-items-center" style="height: 300px;">
+                    <span>No photo available</span>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <h2>{{ teacher.full_name }}</h2>
+            <p class="text-muted">{{ teacher.teacher_id }}</p>
+            <a href="{% url 'teacher_timetable' teacher.id %}" class="btn btn-info mb-3">View Timetable</a>
+            <hr>
+            <h4>Personal Information</h4>
+            <ul>
+                <li><strong>Date of Birth:</strong> {{ teacher.date_of_birth }}</li>
+                <li><strong>Gender:</strong> {{ teacher.gender }}</li>
+                <li><strong>National ID:</strong> {{ teacher.national_id }}</li>
+            </ul>
+            <h4>Employment Information</h4>
+            <ul>
+                <li><strong>Qualification:</strong> {{ teacher.qualification }}</li>
+                <li><strong>Type:</strong> {{ teacher.employment_type }}</li>
+                <li><strong>Employment Date:</strong> {{ teacher.employment_date }}</li>
+                <li><strong>Status:</strong> {{ teacher.status }}</li>
+                {% if user.role == 'Admin' or user.role == 'Principal' %}
+                    <li><strong>Salary:</strong> {{ teacher.salary|default:'Not set' }} UGX</li>
+                {% endif %}
+            </ul>
+            <h4>Contact Information</h4>
+            <ul>
+                <li><strong>Phone:</strong> {{ teacher.contact_phone }}</li>
+                <li><strong>Email:</strong> {{ teacher.email }}</li>
+                <li><strong>Address:</strong> {{ teacher.address }}</li>
+                <li><strong>Emergency Contact:</strong> {{ teacher.emergency_contact }}</li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}

@@ -29,6 +29,14 @@
                 <li><strong>Class:</strong> {{ student.class_grade }}</li>
                 <li><strong>Admission Date:</strong> {{ student.admission_date }}</li>
                 <li><strong>Status:</strong> {{ student.status }}</li>
+                <li><strong>Attendance:</strong> {{ attendance_percentage|floatformat:1 }}% ({{ present_days }}/{{ total_days }})</li>
+                <li><strong>Average Grade:</strong> {{ avg_grade|floatformat:2 }}</li>
+            </ul>
+            <h4>Financial Information</h4>
+            <ul>
+                <li><strong>Total Fees:</strong> {{ total_fees }} UGX</li>
+                <li><strong>Paid:</strong> {{ paid_fees }} UGX</li>
+                <li><strong>Balance:</strong> <span class="{% if balance > 0 %}text-danger{% else %}text-success{% endif %}">{{ balance }} UGX</span></li>
             </ul>
             <h4>Guardian Information</h4>
             <ul>

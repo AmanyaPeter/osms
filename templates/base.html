@@ -14,37 +14,94 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="/">Home</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'student_list' %}">View Students</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'student_registration' %}">Register Student</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'teacher_registration' %}">Register Teacher</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'course_creation' %}">Create Course</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'teacher_assignment' %}">Assign Teacher</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'enrollment' %}">Enroll Student</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'attendance' %}">Track Attendance</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'record_grade' %}">Record Grade</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin">Admin</a>
-                    </li>
+                    {% if user.is_authenticated %}
+                        {% if user.role == 'Admin' or user.role == 'Principal' or user.role == 'Clerk' %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'student_list' %}">View Students</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'student_registration' %}">Register Student</a>
+                            </li>
+                        {% endif %}
+                        {% if user.role == 'Admin' or user.role == 'Principal' %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'teacher_list' %}">View Teachers</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'teacher_registration' %}">Register Teacher</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'course_list' %}">View Courses</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'course_creation' %}">Create Course</a>
+                            </li>
+                        {% endif %}
+                        {% if user.role == 'Admin' or user.role == 'Principal' or user.role == 'Teacher' or user.role == 'Clerk' %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'teacher_assignment' %}">Assign Teacher</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="enrollDropdown" role="button" data-bs-toggle="dropdown">Enrollment</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{% url 'enrollment' %}">Individual Enrollment</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'bulk_enrollment' %}">Bulk Enrollment</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                        {% if user.role == 'Admin' or user.role == 'Principal' or user.role == 'Teacher' %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="attendanceDropdown" role="button" data-bs-toggle="dropdown">Attendance</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{% url 'attendance' %}">Single Entry</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'bulk_attendance' %}">Bulk Entry</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{% url 'student_attendance_report' %}">Student Report</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'class_attendance_report' %}">Class Report</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'record_grade' %}">Record Grade</a>
+                            </li>
+                        {% endif %}
+                        {% if user.role == 'Admin' or user.role == 'Accountant' %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'payment_list' %}">Finance</a>
+                            </li>
+                        {% endif %}
+                        {% if user.is_staff %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin">Admin</a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ user.username }} ({{ user.role }})
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="{% url 'password_change' %}">Change Password</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="post" action="{% url 'logout' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item">Logout</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
