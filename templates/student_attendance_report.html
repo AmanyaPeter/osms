@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Attendance Report - {{ block.super }}{% endblock %}
+
+{% block content %}
+    <h2>Student Attendance Report</h2>
+    <hr>
+
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-6">
+            <label for="student" class="form-label">Select Student</label>
+            <select name="student" id="student" class="form-select" onchange="this.form.submit()">
+                <option value="">Choose...</option>
+                {% for student in students %}
+                    <option value="{{ student.id }}" {% if selected_student.id == student.id %}selected{% endif %}>
+                        {{ student.full_name }} ({{ student.student_id }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    {% if selected_student %}
+        <div class="row mb-4 text-center">
+            <div class="col-md-2">
+                <div class="card p-2 bg-light">
+                    <h6>Total Days</h6>
+                    <h4>{{ summary.total }}</h4>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card p-2 bg-success text-white">
+                    <h6>Present</h6>
+                    <h4>{{ summary.present }}</h4>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card p-2 bg-danger text-white">
+                    <h6>Absent</h6>
+                    <h4>{{ summary.absent }}</h4>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card p-2 bg-warning">
+                    <h6>Late</h6>
+                    <h4>{{ summary.late }}</h4>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-2 bg-info text-white">
+                    <h6>Attendance Percentage</h6>
+                    <h4>{{ summary.percentage|floatformat:1 }}%</h4>
+                </div>
+            </div>
+        </div>
+
+        <h4>Attendance History</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Course</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                    <tr>
+                        <td>{{ record.date }}</td>
+                        <td>{{ record.course.course_name }}</td>
+                        <td>{{ record.status }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">No records found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button onclick="window.print()" class="btn btn-secondary">Print Report</button>
+    {% endif %}
+{% endblock %}

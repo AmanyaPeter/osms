@@ -1,6 +1,13 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from .models import User, Student, Teacher, Subject, Course, TeacherAssignment, Enrollment, Attendance, Assessment, Grade, AuditLog
 
-from .models import Student, Teacher, Subject, Course, TeacherAssignment, Enrollment, Attendance, Assessment, Grade
+@admin.register(User)
+class CustomUserAdmin(UserAdmin):
+    fieldsets = UserAdmin.fieldsets + (
+        ('Role Information', {'fields': ('role',)}),
+    )
+    list_display = UserAdmin.list_display + ('role',)
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
@@ -37,7 +44,7 @@ class TeacherAdmin(admin.ModelAdmin):
             'fields': ('contact_phone', 'email', 'address', 'emergency_contact')
         }),
         ('Professional Information', {
-            'fields': ('teacher_id', 'national_id', 'qualification', 'employment_date', 'employment_type', 'salary', 'status')
+            'fields': ('teacher_id', 'national_id', 'qualification', 'employment_date', 'employment_type', 'salary_encrypted', 'status')
         }),
     )
 
@@ -76,3 +83,10 @@ class AssessmentAdmin(admin.ModelAdmin):
 class GradeAdmin(admin.ModelAdmin):
     list_display = ('student', 'assessment', 'score')
     list_filter = ('student', 'assessment')
+
+@admin.register(AuditLog)
+class AuditLogAdmin(admin.ModelAdmin):
+    list_display = ('user', 'action', 'timestamp', 'ip_address')
+    list_filter = ('user', 'action', 'timestamp')
+    search_fields = ('action', 'details', 'user__username')
+    readonly_fields = ('user', 'action', 'timestamp', 'details', 'ip_address')

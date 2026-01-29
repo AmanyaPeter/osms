@@ -1,5 +1,12 @@
 from django import forms
-from .models import Student, Teacher, Course, TeacherAssignment, Enrollment, Attendance, Grade
+from django.contrib.auth.forms import AuthenticationForm
+from .models import Student, Teacher, Course, TeacherAssignment, Enrollment, Attendance, Grade, Payment
+
+class LoginForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
 
 class StudentForm(forms.ModelForm):
     class Meta:
@@ -22,6 +29,8 @@ class StudentForm(forms.ModelForm):
             field.widget.attrs['class'] = 'form-control'
 
 class TeacherForm(forms.ModelForm):
+    salary = forms.DecimalField(max_digits=10, decimal_places=2, required=False)
+
     class Meta:
         model = Teacher
         fields = [
@@ -61,7 +70,7 @@ class CourseForm(forms.ModelForm):
 class TeacherAssignmentForm(forms.ModelForm):
     class Meta:
         model = TeacherAssignment
-        fields = ['teacher', 'course', 'class_grade', 'term', 'academic_year']
+        fields = ['teacher', 'course', 'class_grade', 'term', 'academic_year', 'day_of_week', 'time_slot']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -99,6 +108,20 @@ class GradeForm(forms.ModelForm):
     class Meta:
         model = Grade
         fields = ['student', 'assessment', 'score']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+
+
+class PaymentForm(forms.ModelForm):
+    class Meta:
+        model = Payment
+        fields = ['student', 'amount', 'date', 'receipt_number']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
