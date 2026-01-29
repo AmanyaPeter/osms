@@ -35,7 +35,7 @@ class TeacherForm(forms.ModelForm):
         model = Teacher
         fields = [
             'full_name', 'date_of_birth', 'gender', 'contact_phone', 'email',
-            'national_id', 'qualification', 'employment_date', 'employment_type',
+            'national_id', 'qualification', 'subject_specialization', 'employment_date', 'employment_type',
             'salary', 'teacher_photo', 'address', 'emergency_contact', 'status'
         ]
         widgets = {
@@ -48,6 +48,19 @@ class TeacherForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
+        if self.instance and self.instance.pk:
+            try:
+                self.fields['salary'].initial = self.instance.salary
+            except Exception:
+                pass
+
+    def save(self, commit=True):
+        teacher = super().save(commit=False)
+        teacher.salary = self.cleaned_data['salary']
+        if commit:
+            teacher.save()
+            self.save_m2m()
+        return teacher
 
 
 class CourseForm(forms.ModelForm):

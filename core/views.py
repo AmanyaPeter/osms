@@ -257,6 +257,7 @@ def teacher_registration(request):
             teacher = form.save(commit=False)
             teacher.created_by = request.user
             teacher.save()
+            form.save_m2m()
             log_action(request.user, "Teacher Registered", f"Registered teacher {teacher.full_name} ({teacher.teacher_id})", request)
             return redirect('teacher_profile', teacher_id=teacher.id)
     else:

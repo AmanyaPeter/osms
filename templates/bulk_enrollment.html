@@ -28,7 +28,7 @@
             </div>
             <div class="col-md-4 mb-3">
                 <label for="academic_year" class="form-label">Academic Year</label>
-                <input type="number" name="academic_year" id="academic_year" class="form-control" value="2026" required>
+                <input type="number" name="academic_year" id="academic_year" class="form-control" value="{% now 'Y' %}" required>
             </div>
         </div>
 

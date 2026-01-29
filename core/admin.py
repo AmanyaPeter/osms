@@ -30,8 +30,11 @@ class StudentAdmin(admin.ModelAdmin):
         }),
     )
 
+from .forms import TeacherForm
+
 @admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):
+    form = TeacherForm
     list_display = ('teacher_id', 'full_name', 'contact_phone', 'email', 'qualification', 'status')
     search_fields = ('teacher_id', 'full_name', 'email')
     list_filter = ('qualification', 'employment_type', 'status')
@@ -44,7 +47,7 @@ class TeacherAdmin(admin.ModelAdmin):
             'fields': ('contact_phone', 'email', 'address', 'emergency_contact')
         }),
         ('Professional Information', {
-            'fields': ('teacher_id', 'national_id', 'qualification', 'employment_date', 'employment_type', 'salary_encrypted', 'status')
+            'fields': ('teacher_id', 'national_id', 'qualification', 'subject_specialization', 'employment_date', 'employment_type', 'salary', 'status')
         }),
     )
 

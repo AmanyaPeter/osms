@@ -1,7 +1,5 @@
-Django==5.0
-pywebview==5.0
-APScheduler==3.10.4
-cryptography==42.0.5
-reportlab==4.1.0
-openpyxl==3.1.2
-Pillow==10.2.0
+Django>=4.2,<5.0
+Pillow>=10.0.0
+cryptography>=41.0.0
+openpyxl>=3.1.0
+reportlab>=4.0.0
