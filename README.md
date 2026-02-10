@@ -1,79 +1,66 @@
-# Offline School Management System (OSMS)
+# Offline School Management System (OSMS) - PHP Refactor
 
-OSMS is a standalone desktop application designed to manage academic, administrative, and financial operations for Ugandan schools. It is built using Django and wrapped in PyWebView for a native desktop experience, optimized for offline use on a single computer.
+This project is a clean, fast, and offline-capable education management system refactored from Django to PHP. It is designed for low-bandwidth and offline school environments in Uganda.
 
-## 🚀 Key Features
+## Features
+- **Role-Based Access Control (RBAC):** Admin, Principal, Teacher, Clerk, and Student roles.
+- **Student Management:** Full CRUD operations, registration, and profile views.
+- **Staff Management:** Track teaching and non-teaching staff.
+- **Academic Management:** Course creation and student enrollment.
+- **Finance Management:** Student fee structures, payment recording, and defaulter reports.
+- **Attendance & Grading:** Bulk attendance marking and assessment tracking.
+- **Offline-First:** No external CDNs used; all assets (Tailwind CSS, Alpine.js) are local.
+- **Clean UI:** Utility-first styling with Tailwind CSS and light interactivity with Alpine.js.
 
-### 👤 User Authentication & RBAC
-- **Multi-role Support:** Admin, Principal, Teacher, Accountant, and Data Clerk.
-- **Role-Based Access Control (RBAC):** Permissions are strictly enforced across all modules based on user roles.
-- **Audit Logging:** Every critical action (student registration, deletions, grade changes, financial transactions) is logged for accountability.
+## Tech Stack
+- **Backend:** PHP (Vanilla with PDO)
+- **Database:** MySQL
+- **Frontend:** HTML5, Tailwind CSS, Alpine.js
+- **Routing:** Custom single-entry point router (`public/index.php`)
 
-### 🎓 Student Management
-- **Registration & Profiles:** Complete student record keeping including photos (auto-resized).
-- **Bulk Import:** Support for importing student data from Excel (.xlsx) files.
-- **Academic Summary:** Student profiles display attendance percentages, average grades, and fee balances.
-
-### 👩‍🏫 Teacher Management
-- **Profile Management:** Detailed records for teaching staff.
-- **Salary Encryption:** Sensitive salary data is encrypted in the database using the `cryptography` library.
-- **Weekly Timetable:** Automated timetable generation and printable views for teachers.
-
-### 📚 Academic & Enrollment
-- **Bulk Enrollment:** Quickly enroll entire classes into their respective courses.
-- **Attendance Tracking:** Efficient bulk attendance marking interface.
-- **Grade Management:** Record and track student performance across various assessment types.
-- **Reports:** Generate individual student attendance reports and class-wide summaries.
-
-### 💰 Finance Module
-- **Fee Management:** Track fee structures and student payments.
-- **Receipt Generation:** Automatic PDF receipt generation for every payment made.
-- **Financial Reporting:** View total collections and individual payment histories.
-
-## 🛠 Tech Stack
-- **Backend:** Python / Django 5.0
-- **Frontend:** Bootstrap 5 (Responsive UI)
-- **Desktop Wrapper:** PyWebView 5.0
-- **Database:** SQLite 3 (Single file, crash-resistant)
-- **PDF Engine:** ReportLab
-- **Excel Processing:** OpenPyXL
-- **Image Processing:** Pillow
-
-## 📥 Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd osms
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Initialize the Database:**
-   ```bash
-   python manage.py makemigrations core
-   python manage.py migrate
-   ```
-
-4. **Create an Admin User:**
-   ```bash
-   python manage.py createsuperuser
-   ```
-
-## 🏃‍♂️ Running the Application
-
-To launch the desktop application:
-```bash
-python main.py
+## Folder Structure
+```
+project-root/
+│
+├── public/                 # Web server root
+│   ├── index.php           # Entry point
+│   └── assets/             # CSS, JS, Images
+│
+├── app/
+│   ├── Controllers/        # Business logic
+│   ├── Models/             # Data access (PDO)
+│   ├── Views/              # Layouts and templates
+│   └── Core/               # Router and core classes
+│
+├── routes/
+│   └── web.php             # Route definitions
+│
+├── database/
+│   ├── schema.sql          # MySQL Schema
+│   └── seed.sql            # Sample data
+│
+└── storage/
+    └── uploads/            # Student/Staff photos
 ```
 
-## 🛡 Security & Reliability
-- **Offline First:** Operates entirely without internet, ensuring data privacy and availability.
-- **Data Encryption:** Sensitive financial and personal data is encrypted.
-- **Data Hygiene:** Includes a `.gitignore` to prevent build artifacts and local databases from being committed.
+## Setup Instructions for School Labs (XAMPP/WAMP)
 
-## 📄 License
-This project is proprietary and developed for Ugandan Schools.
+1. **Install XAMPP:** Download and install XAMPP with PHP 8.x and MySQL.
+2. **Clone/Copy Project:** Place the project folder in `C:\xampp\htdocs\osms`.
+3. **Database Setup:**
+   - Open phpMyAdmin (`http://localhost/phpmyadmin`).
+   - Create a new database named `osms_db`.
+   - Import `database/schema.sql` and `database/seed.sql`.
+4. **Configuration:**
+   - Update `app/Models/Database.php` with your MySQL credentials if they differ from default (root/no password).
+5. **Launch:**
+   - Start Apache and MySQL in XAMPP Control Panel.
+   - Access the system at `http://localhost/osms/public/`.
+
+## Role Login Flows (Default)
+- **Admin:** `admin` / `password`
+- **Teacher:** `teacher1` / `password`
+- **Student:** `student1` / `password`
+
+## System Overview
+The system follows a Model-View-Controller (MVC) architecture. All requests are routed through `public/index.php`, which dispatches them to the appropriate controller based on the definitions in `routes/web.php`. Database interactions use prepared statements via PDO to ensure security against SQL injection.
